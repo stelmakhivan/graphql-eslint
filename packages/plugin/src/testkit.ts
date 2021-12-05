@@ -17,7 +17,7 @@ export type GraphQLValidTestCase<Options> = Omit<RuleTester.ValidTestCase, 'opti
 };
 
 export type GraphQLInvalidTestCase<T> = GraphQLValidTestCase<T> & {
-  errors: number | Array<RuleTester.TestCaseError | string>;
+  errors: number | (RuleTester.TestCaseError | string)[];
   output?: string | null;
 };
 
@@ -94,7 +94,6 @@ export class GraphQLRuleTester extends RuleTester {
         }
 
         const messageForSnapshot = visualizeEslintMessage(code, message);
-        // eslint-disable-next-line no-undef
         expect(messageForSnapshot).toMatchSnapshot();
       }
     }
@@ -130,6 +129,7 @@ function defineParser(linter: Linter, parser: string): void {
   const defined = parsers.get(linter);
   if (!defined.has(parser)) {
     defined.add(parser);
+    // eslint-disable-next-line @typescript-eslint/no-var-requires
     linter.defineParser(parser, require(parser));
   }
 }

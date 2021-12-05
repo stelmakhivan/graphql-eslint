@@ -25,7 +25,6 @@ function writeFormattedFile(filePath: string, typeScriptCode: string): void {
 
   const formattedCode = format(code, prettierOptions);
   writeFileSync(join(SRC_PATH, filePath), formattedCode);
-  // eslint-disable-next-line no-console
   console.log(`✅  ${chalk.green(filePath)} file generated`);
 }
 

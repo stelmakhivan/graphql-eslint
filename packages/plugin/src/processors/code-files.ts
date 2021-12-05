@@ -11,12 +11,12 @@ type Block = {
 };
 
 export function createGraphqlProcessor(): Linter.Processor {
-  const blocksMap = new Map<string, Array<Block | string>>();
+  const blocksMap = new Map<string, (Block | string)[]>();
 
   return {
     supportsAutofix: true,
     preprocess(text: string, filename: string): (string | Linter.ProcessorFile)[] {
-      const blocks: Array<Block | string> = [];
+      const blocks: (Block | string)[] = [];
       blocksMap.set(filename, blocks);
 
       if (filename && text && RELEVANT_KEYWORDS.some(keyword => text.includes(keyword))) {

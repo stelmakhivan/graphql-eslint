@@ -184,7 +184,6 @@ function generateDocs(): void {
   for (const r of result) {
     writeFileSync(r.path, r.content);
   }
-  // eslint-disable-next-line no-console
   console.log('✅  Documentation generated');
 }
 

@@ -14,7 +14,7 @@ export function getReachableTypes(schema: GraphQLSchema): ReachableTypes {
   }
   const reachableTypes: ReachableTypes = new Set();
 
-  const collect = (node: ASTNode): false | void => {
+  const collect = (node: ASTNode): void => {
     const typeName = getTypeName(node);
     if (reachableTypes.has(typeName)) {
       return;

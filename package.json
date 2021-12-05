@@ -11,7 +11,7 @@
     "generate:configs": "ts-node scripts/generate-configs.ts",
     "generate:docs": "ts-node scripts/generate-docs.ts",
     "postinstall": "patch-package",
-    "lint": "eslint --ignore-path .gitignore --ext ts,js .",
+    "lint": "eslint --ignore-path .gitignore .",
     "prebuild": "rimraf packages/*/dist",
     "transpile-ts": "tsc --project tsconfig.json",
     "build": "yarn transpile-ts && bob build",

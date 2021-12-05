@@ -124,8 +124,7 @@ ruleTester.runGraphQLTests('strict-id-in-types', rule, {
       code: 'type B { name: String! }',
       errors: [
         {
-          message:
-            'B must have exactly one non-nullable unique identifier. Accepted name(s): id ; Accepted type(s): ID',
+          message: `B must have exactly one non-nullable unique identifier. Accepted name(s): id; Accepted type(s): ID.`,
         },
       ],
     },
@@ -139,8 +138,7 @@ ruleTester.runGraphQLTests('strict-id-in-types', rule, {
       ],
       errors: [
         {
-          message:
-            'B must have exactly one non-nullable unique identifier. Accepted name(s): id,_id ; Accepted type(s): ID,String',
+          message: `B must have exactly one non-nullable unique identifier. Accepted name(s): id, _id; Accepted type(s): ID, String.`,
         },
       ],
     },
@@ -154,20 +152,16 @@ ruleTester.runGraphQLTests('strict-id-in-types', rule, {
       ],
       errors: [
         {
-          message:
-            'B1 must have exactly one non-nullable unique identifier. Accepted name(s): id ; Accepted type(s): String',
+          message: `B1 must have exactly one non-nullable unique identifier. Accepted name(s): id; Accepted type(s): String.`,
         },
         {
-          message:
-            'B2 must have exactly one non-nullable unique identifier. Accepted name(s): id ; Accepted type(s): String',
+          message: `B2 must have exactly one non-nullable unique identifier. Accepted name(s): id; Accepted type(s): String.`,
         },
         {
-          message:
-            'B3 must have exactly one non-nullable unique identifier. Accepted name(s): id ; Accepted type(s): String',
+          message: `B3 must have exactly one non-nullable unique identifier. Accepted name(s): id; Accepted type(s): String.`,
         },
         {
-          message:
-            'B4 must have exactly one non-nullable unique identifier. Accepted name(s): id ; Accepted type(s): String',
+          message: `B4 must have exactly one non-nullable unique identifier. Accepted name(s): id; Accepted type(s): String.`,
         },
       ],
     },
@@ -184,12 +178,10 @@ ruleTester.runGraphQLTests('strict-id-in-types', rule, {
       ],
       errors: [
         {
-          message:
-            'Bresult must have exactly one non-nullable unique identifier. Accepted name(s): id ; Accepted type(s): ID',
+          message: `Bresult must have exactly one non-nullable unique identifier. Accepted name(s): id; Accepted type(s): ID.`,
         },
         {
-          message:
-            'BPagination must have exactly one non-nullable unique identifier. Accepted name(s): id ; Accepted type(s): ID',
+          message: `BPagination must have exactly one non-nullable unique identifier. Accepted name(s): id; Accepted type(s): ID.`,
         },
       ],
     },
@@ -206,8 +198,7 @@ ruleTester.runGraphQLTests('strict-id-in-types', rule, {
       ],
       errors: [
         {
-          message:
-            'BError must have exactly one non-nullable unique identifier. Accepted name(s): id ; Accepted type(s): ID',
+          message: `BError must have exactly one non-nullable unique identifier. Accepted name(s): id; Accepted type(s): ID.`,
         },
       ],
     },

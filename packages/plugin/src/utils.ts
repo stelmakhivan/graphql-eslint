@@ -12,13 +12,7 @@ export function requireSiblingsOperations(
   ruleName: string,
   context: GraphQLESLintRuleContext
 ): SiblingOperations | never {
-  if (!context.parserServices) {
-    throw new Error(
-      `Rule '${ruleName}' requires 'parserOptions.operations' to be set and loaded. See http://bit.ly/graphql-eslint-operations for more info`
-    );
-  }
-
-  if (!context.parserServices.siblingOperations.available) {
+  if (!context.parserServices?.siblingOperations.available) {
     throw new Error(
       `Rule '${ruleName}' requires 'parserOptions.operations' to be set and loaded. See http://bit.ly/graphql-eslint-operations for more info`
     );
@@ -62,12 +56,14 @@ export function requireUsedFieldsFromContext(ruleName: string, context: GraphQLE
 
 function getLexer(source: Source): Lexer {
   // GraphQL v14
+  // eslint-disable-next-line @typescript-eslint/no-var-requires
   const gqlLanguage = require('graphql/language');
-  if (gqlLanguage && gqlLanguage.createLexer) {
+  if (gqlLanguage?.createLexer) {
     return gqlLanguage.createLexer(source, {});
   }
 
   // GraphQL v15
+  // eslint-disable-next-line @typescript-eslint/no-var-requires
   const { Lexer: LexerCls } = require('graphql');
   if (LexerCls && typeof LexerCls === 'function') {
     return new LexerCls(source);

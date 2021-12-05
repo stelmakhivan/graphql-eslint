@@ -2,26 +2,17 @@ import {
   Kind,
   Location,
   ValueNode,
-  StringValueNode,
-  ASTNode,
   TokenKind,
   GraphQLOutputType,
   GraphQLNamedType,
   isNonNullType,
   isListType,
 } from 'graphql';
-import { SourceLocation, Comment } from 'estree';
+import { Comment } from 'estree';
 import { GraphQLESTreeNode } from './estree-ast';
 
-export default function keyValMap<T, V>(
-  list: ReadonlyArray<T>,
-  keyFn: (item: T) => string,
-  valFn: (item: T) => V
-): Record<string, V> {
-  return list.reduce((map, item) => {
-    map[keyFn(item)] = valFn(item);
-    return map;
-  }, Object.create(null));
+function keyValMap<T, V>(list: ReadonlyArray<T>, keyFn: (item: T) => string, valFn: (item: T) => V): Record<string, V> {
+  return Object.fromEntries(list.map(item => [keyFn(item), valFn(item)]));
 }
 
 export function valueFromNode(valueNode: GraphQLESTreeNode<ValueNode>, variables?: Record<string, any>): any {
@@ -57,10 +48,6 @@ export function getBaseType(type: GraphQLOutputType): GraphQLNamedType {
   return type;
 }
 
-export function convertRange(gqlLocation: Location): [number, number] {
-  return [gqlLocation.start, gqlLocation.end];
-}
-
 export function extractCommentsFromAst(loc: Location): Comment[] {
   if (!loc) {
     return [];
@@ -84,37 +71,4 @@ export function extractCommentsFromAst(loc: Location): Comment[] {
     token = next;
   }
   return comments;
-}
-
-export function convertLocation(gqlLocation: Location): SourceLocation {
-  return {
-    start: {
-      column: gqlLocation.startToken.column,
-      line: gqlLocation.startToken.line,
-    },
-    end: {
-      column: gqlLocation.endToken.column,
-      line: gqlLocation.endToken.line,
-    },
-    source: gqlLocation.source.body,
-  };
-}
-
-export function isNodeWithDescription<T extends ASTNode>(
-  obj: T
-): obj is T & { readonly description?: StringValueNode } {
-  return (obj as any)?.description;
-}
-
-export function convertDescription<T extends ASTNode>(node: T): Comment[] {
-  if (isNodeWithDescription(node)) {
-    return [
-      {
-        type: node.description.block ? 'Block' : 'Line',
-        value: node.description.value,
-      },
-    ];
-  }
-
-  return [];
 }

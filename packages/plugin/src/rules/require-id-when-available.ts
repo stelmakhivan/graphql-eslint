@@ -87,7 +87,7 @@ const rule: GraphQLESLintRule<[RequireIdWhenAvailableRuleConfig], true> = {
         }
 
         const typeInfo = node.typeInfo();
-        if (typeInfo && typeInfo.gqlType) {
+        if (typeInfo.gqlType) {
           const rawType = getBaseType(typeInfo.gqlType);
           if (rawType instanceof GraphQLObjectType || rawType instanceof GraphQLInterfaceType) {
             const fields = rawType.getFields();

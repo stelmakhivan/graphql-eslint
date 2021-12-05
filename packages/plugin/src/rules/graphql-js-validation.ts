@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-var-requires */
 import { validate, GraphQLSchema, DocumentNode, ASTNode, ValidationRule } from 'graphql';
 import { validateSDL } from 'graphql/validation/validate';
 import { parseImportLine, processImport } from '@graphql-tools/import';
@@ -22,7 +23,9 @@ export function validateDoc(
 ): void {
   if (documentNode?.definitions?.length > 0) {
     try {
-      const validationErrors = schema ? validate(schema, documentNode, rules) : validateSDL(documentNode, null, rules as any);
+      const validationErrors = schema
+        ? validate(schema, documentNode, rules)
+        : validateSDL(documentNode, null, rules as any);
 
       for (const error of validationErrors) {
         const validateRuleName = ruleName || `[${extractRuleName(error.stack)}]`;
@@ -111,7 +114,7 @@ const importFiles = (context: GraphQLESLintRuleContext) => {
   return processImport(context.getFilename());
 };
 
-export const GRAPHQL_JS_VALIDATIONS = Object.assign(
+export const GRAPHQL_JS_VALIDATIONS: Record<string, GraphQLESLintRule> = Object.assign(
   {},
   validationToRule('executable-definitions', 'ExecutableDefinitions', {
     category: 'Operations',
@@ -365,4 +368,4 @@ export const GRAPHQL_JS_VALIDATIONS = Object.assign(
     category: 'Operations',
     description: `Variables passed to field arguments conform to type.`,
   })
-) as Record<string, GraphQLESLintRule>;
+);

@@ -76,46 +76,44 @@ const rule: GraphQLESLintRule<[], true> = {
       recommended: true,
     },
     messages: {
-      [NO_DEPRECATED]: `This {{ type }} is marked as deprecated in your GraphQL schema {{ reason }}`,
+      [NO_DEPRECATED]: `This {{ type }} is marked as deprecated in your GraphQL schema (reason: {{ reason }})`,
     },
     schema: [],
   },
   create(context) {
+    requireGraphQLSchemaFromContext('no-deprecated', context);
+
     return {
       EnumValue(node) {
-        requireGraphQLSchemaFromContext('no-deprecated', context);
         const typeInfo = node.typeInfo();
+        const reason = typeInfo.enumValue?.deprecationReason;
 
-        if (typeInfo && typeInfo.enumValue) {
-          if (typeInfo.enumValue.deprecationReason) {
-            const enumValueName = node.value;
-            context.report({
-              loc: getLocation(node.loc, enumValueName),
-              messageId: NO_DEPRECATED,
-              data: {
-                type: 'enum value',
-                reason: typeInfo.enumValue.deprecationReason ? `(reason: ${typeInfo.enumValue.deprecationReason})` : '',
-              },
-            });
-          }
+        if (reason) {
+          const enumValueName = node.value;
+          context.report({
+            loc: getLocation(node.loc, enumValueName),
+            messageId: NO_DEPRECATED,
+            data: {
+              type: 'enum value',
+              reason,
+            },
+          });
         }
       },
       Field(node) {
-        requireGraphQLSchemaFromContext('no-deprecated', context);
         const typeInfo = node.typeInfo();
+        const reason = typeInfo.fieldDef?.deprecationReason;
 
-        if (typeInfo && typeInfo.fieldDef) {
-          if (typeInfo.fieldDef.deprecationReason) {
-            const fieldName = node.name.value;
-            context.report({
-              loc: getLocation(node.loc, fieldName),
-              messageId: NO_DEPRECATED,
-              data: {
-                type: 'field',
-                reason: typeInfo.fieldDef.deprecationReason ? `(reason: ${typeInfo.fieldDef.deprecationReason})` : '',
-              },
-            });
-          }
+        if (reason) {
+          const fieldName = node.name.value;
+          context.report({
+            loc: getLocation(node.loc, fieldName),
+            messageId: NO_DEPRECATED,
+            data: {
+              type: 'field',
+              reason,
+            },
+          });
         }
       },
     };

@@ -1,4 +1,3 @@
-/* eslint-disable no-console */
 import { spawnSync } from 'child_process';
 import { basename } from 'path';
 import * as semver from 'semver';

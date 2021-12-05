@@ -1,37 +1,34 @@
+/* eslint sort-keys: ['error', 'asc', { minKeys: 5 }] */
+const CODE_FILE_EXTENSIONS = '{js,jsx,cjs,mjs,ts,tsx,cts,mts}';
+
 module.exports = {
   reportUnusedDisableDirectives: true,
   ignorePatterns: ['examples'],
-  parser: '@typescript-eslint/parser',
-  extends: ['eslint:recommended', 'plugin:@typescript-eslint/recommended', 'standard', 'prettier'],
-  plugins: ['unicorn'],
-  rules: {
-    'no-empty': 'off',
-    'no-console': 'error',
-    'no-prototype-builtins': 'off',
-    'no-restricted-globals': ['error', { name: 'isNaN', message: 'Use Number.isNaN instead' }],
-    'no-useless-constructor': 'off',
-    'object-shorthand': ['error', 'always'],
-    'no-unused-vars': 'off', // disable base rule as it can report incorrect errors
-    '@typescript-eslint/no-unused-vars': ['warn', { args: 'none' }],
-    '@typescript-eslint/no-use-before-define': 'off',
-    '@typescript-eslint/no-namespace': 'off',
-    '@typescript-eslint/no-empty-interface': 'off',
-    '@typescript-eslint/no-empty-function': 'off',
-    '@typescript-eslint/no-var-requires': 'off',
-    '@typescript-eslint/no-explicit-any': 'off',
-    '@typescript-eslint/no-non-null-assertion': 'off',
-    '@typescript-eslint/explicit-function-return-type': 'off',
-    '@typescript-eslint/ban-ts-ignore': 'off',
-    '@typescript-eslint/ban-types': 'off',
-    'unicorn/prefer-array-some': 'error',
-    'unicorn/prefer-includes': 'error',
-    'unicorn/no-useless-fallback-in-spread': 'error',
-    'unicorn/better-regex': 'error',
-  },
   overrides: [
     {
-      files: ['**/rules/*.ts'],
-      extends: ['plugin:eslint-plugin/rules-recommended'],
+      files: `*.${CODE_FILE_EXTENSIONS}`,
+      extends: ['eslint:recommended', 'standard', 'plugin:@typescript-eslint/recommended', 'prettier'],
+      plugins: ['unicorn'],
+      rules: {
+        '@typescript-eslint/array-type': ['error', { readonly: 'generic' }],
+        '@typescript-eslint/no-explicit-any': 'off',
+        '@typescript-eslint/prefer-optional-chain': 'error',
+        'no-console': 'error',
+        'no-else-return': ['error', { allowElseIf: false }],
+        'no-lonely-if': 'error',
+        'no-restricted-globals': ['error', { name: 'isNaN', message: 'Use Number.isNaN instead' }],
+        'object-shorthand': ['error', 'always'],
+        'unicorn/better-regex': 'error',
+        'unicorn/no-lonely-if': 'error',
+        'unicorn/no-useless-fallback-in-spread': 'error',
+        'unicorn/prefer-array-some': 'error',
+        'unicorn/prefer-includes': 'error',
+        'unicorn/prefer-object-from-entries': 'error',
+      },
+    },
+    {
+      files: '**/rules/*.ts',
+      extends: 'plugin:eslint-plugin/rules-recommended',
       rules: {
         'eslint-plugin/require-meta-docs-description': ['error', { pattern: '.+\\.$' }], // force to put a point at the end
         'eslint-plugin/require-meta-docs-url': [
@@ -41,19 +38,25 @@ module.exports = {
       },
     },
     {
-      files: ['*.{spec,test}.{ts,js}'],
+      files: `*.{spec,test}.${CODE_FILE_EXTENSIONS}`,
+      extends: 'plugin:eslint-plugin/tests-recommended',
       env: {
         jest: true,
       },
-      extends: ['plugin:eslint-plugin/tests-recommended'],
       rules: {
         'eslint-plugin/test-case-shorthand-strings': 'error',
       },
     },
     {
-      files: ['**/tests/mocks/*.{ts,js}'],
+      files: `**/tests/mocks/*.${CODE_FILE_EXTENSIONS}`,
       rules: {
         '@typescript-eslint/no-unused-vars': 'off',
+      },
+    },
+    {
+      files: `scripts/**/*.${CODE_FILE_EXTENSIONS}`,
+      rules: {
+        'no-console': 'off',
       },
     },
   ],
