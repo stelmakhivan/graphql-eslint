@@ -3,7 +3,7 @@ const CODE_FILE_EXTENSIONS = '{js,jsx,cjs,mjs,ts,tsx,cts,mts}';
 
 module.exports = {
   reportUnusedDisableDirectives: true,
-  ignorePatterns: ['examples'],
+  ignorePatterns: ['examples/**/*'],
   overrides: [
     {
       files: `*.${CODE_FILE_EXTENSIONS}`,
@@ -13,6 +13,7 @@ module.exports = {
         '@typescript-eslint/array-type': ['error', { readonly: 'generic' }],
         '@typescript-eslint/no-explicit-any': 'off',
         '@typescript-eslint/prefer-optional-chain': 'error',
+        'import/no-useless-path-segments': ['error', { noUselessIndex: true, commonjs: true }],
         'import/order': ['error', { groups: ['builtin', 'external', 'internal'] }],
         'no-console': 'error',
         'no-else-return': ['error', { allowElseIf: false }],
