@@ -1,9 +1,9 @@
 /* eslint-disable @typescript-eslint/no-var-requires */
+import { existsSync } from 'fs';
+import { join, dirname } from 'path';
 import { validate, GraphQLSchema, DocumentNode, ASTNode, ValidationRule } from 'graphql';
 import { validateSDL } from 'graphql/validation/validate';
 import { parseImportLine, processImport } from '@graphql-tools/import';
-import { existsSync } from 'fs';
-import { join, dirname } from 'path';
 import { GraphQLESLintRule, GraphQLESLintRuleContext } from '../types';
 import { getLocation, requireGraphQLSchemaFromContext, requireSiblingsOperations } from '../utils';
 import { GraphQLESTreeNode } from '../estree-parser';

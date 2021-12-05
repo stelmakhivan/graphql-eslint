@@ -44,7 +44,6 @@ export function getBaseType(type: GraphQLOutputType): GraphQLNamedType {
   if (isNonNullType(type) || isListType(type)) {
     return getBaseType(type.ofType);
   }
-
   return type;
 }
 

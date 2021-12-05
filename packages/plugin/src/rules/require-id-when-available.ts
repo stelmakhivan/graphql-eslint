@@ -1,6 +1,6 @@
+import { GraphQLInterfaceType, GraphQLObjectType } from 'graphql';
 import { requireGraphQLSchemaFromContext, requireSiblingsOperations } from '../utils';
 import { GraphQLESLintRule } from '../types';
-import { GraphQLInterfaceType, GraphQLObjectType } from 'graphql';
 import { getBaseType } from '../estree-parser';
 
 const REQUIRE_ID_WHEN_AVAILABLE = 'REQUIRE_ID_WHEN_AVAILABLE';

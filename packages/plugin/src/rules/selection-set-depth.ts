@@ -1,6 +1,6 @@
-import { GraphQLESLintRule } from '../types';
 import depthLimit from 'graphql-depth-limit';
 import { DocumentNode, FragmentDefinitionNode, GraphQLError, Kind, OperationDefinitionNode } from 'graphql';
+import { GraphQLESLintRule } from '../types';
 import { GraphQLESTreeNode } from '../estree-parser';
 import { getLocation, requireSiblingsOperations } from '../utils';
 import { SiblingOperations } from '../sibling-operations';

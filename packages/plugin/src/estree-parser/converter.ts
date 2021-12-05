@@ -30,6 +30,16 @@ const convertNode =
       source: node.loc.source.body,
     };
 
+    const leadingComments: Comment[] =
+      'description' in node && node.description
+        ? [
+            {
+              type: node.description.block ? 'Block' : 'Line',
+              value: node.description.value,
+            },
+          ]
+        : [];
+
     const calculatedTypeInfo = typeInfo
       ? <TypeInformation>{
           argument: typeInfo.getArgument(),
@@ -43,16 +53,6 @@ const convertNode =
           gqlType: typeInfo.getType(),
         }
       : {};
-
-    const leadingComments: Comment[] =
-      'description' in node && node.description
-        ? [
-            {
-              type: node.description.block ? 'Block' : 'Line',
-              value: node.description.value,
-            },
-          ]
-        : [];
 
     const rawNode = () => {
       if (!parent || key === undefined) {
@@ -72,8 +72,10 @@ const convertNode =
       type: node.kind,
       loc,
       range: [node.loc.start, node.loc.end],
-      // Strips tokens information from `location` object - this is needed since it's created as linked list in GraphQL-JS,
-      // causing eslint to fail on circular JSON
+      /*
+       * Strips tokens information from `location` object - this is needed since it's created as linked list in GraphQL-JS,
+       * causing eslint to fail on circular JSON
+       */
       gqlLocation: {
         start: node.loc.start,
         end: node.loc.end,

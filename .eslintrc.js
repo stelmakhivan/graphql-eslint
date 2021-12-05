@@ -13,6 +13,7 @@ module.exports = {
         '@typescript-eslint/array-type': ['error', { readonly: 'generic' }],
         '@typescript-eslint/no-explicit-any': 'off',
         '@typescript-eslint/prefer-optional-chain': 'error',
+        'import/order': ['error', { groups: ['builtin', 'external', 'internal'] }],
         'no-console': 'error',
         'no-else-return': ['error', { allowElseIf: false }],
         'no-lonely-if': 'error',
