@@ -9,9 +9,8 @@ import {
   OperationTypeNode,
 } from 'graphql';
 import { Source, asArray } from '@graphql-tools/utils';
-import { GraphQLConfig } from 'graphql-config';
-import { ParserOptions } from './types';
-import { getOnDiskFilepath, loaderCache } from './utils';
+import { GraphQLProjectConfig } from 'graphql-config';
+import { loaderCache } from './utils';
 
 export type FragmentSource = { filePath: string; document: FragmentDefinitionNode };
 export type OperationSource = { filePath: string; document: OperationDefinitionNode };
@@ -39,44 +38,38 @@ const handleVirtualPath = (documents: Source[]): Source[] => {
       return source;
     }
     filepathMap[location] ??= -1;
-    const index = filepathMap[location] += 1;
+    const index = (filepathMap[location] += 1);
     return {
       ...source,
-      location: resolve(location, `${index}_document.graphql`)
+      location: resolve(location, `${index}_document.graphql`),
     };
   });
 };
 
-const operationsCache: Map<string, Source[]> = new Map();
-const siblingOperationsCache: Map<Source[], SiblingOperations> = new Map();
+const operationsCache = new Map<string, Source[]>();
+const siblingOperationsCache = new Map<Source[], SiblingOperations>();
 
-const getSiblings = (filePath: string, gqlConfig: GraphQLConfig): Source[] => {
-  const realFilepath = filePath ? getOnDiskFilepath(filePath) : null;
-  const projectForFile = realFilepath ? gqlConfig.getProjectForFile(realFilepath) : gqlConfig.getDefault();
-  const documentsKey = asArray(projectForFile.documents)
-    .sort()
-    .join(',');
-
+const getSiblings = (projectForFile: GraphQLProjectConfig): Source[] => {
+  const documentsKey = asArray(projectForFile.documents).sort().join(',');
   if (!documentsKey) {
     return [];
   }
-
   let siblings = operationsCache.get(documentsKey);
 
   if (!siblings) {
     const documents = projectForFile.loadDocumentsSync(projectForFile.documents, {
       skipGraphQLImport: true,
-      cache: loaderCache
+      cache: loaderCache,
     });
-    siblings = handleVirtualPath(documents)
+    siblings = handleVirtualPath(documents);
     operationsCache.set(documentsKey, siblings);
   }
 
   return siblings;
 };
 
-export function getSiblingOperations(options: ParserOptions, gqlConfig: GraphQLConfig): SiblingOperations {
-  const siblings = getSiblings(options.filePath, gqlConfig);
+export function getSiblingOperations(projectForFile: GraphQLProjectConfig): SiblingOperations {
+  const siblings = getSiblings(projectForFile);
 
   if (siblings.length === 0) {
     let printed = false;

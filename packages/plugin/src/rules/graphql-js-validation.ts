@@ -44,7 +44,7 @@ export function validateDoc(
 }
 
 const isGraphQLImportFile = rawSDL => {
-  const trimmedRawSDL = rawSDL.trimLeft();
+  const trimmedRawSDL = rawSDL.trimStart();
   return trimmedRawSDL.startsWith('# import') || trimmedRawSDL.startsWith('#import');
 };
 

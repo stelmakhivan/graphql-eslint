@@ -1,28 +1,22 @@
 import { GraphQLSchema } from 'graphql';
-import { GraphQLConfig } from 'graphql-config';
+import { GraphQLProjectConfig } from 'graphql-config';
 import { asArray } from '@graphql-tools/utils';
 import { ParserOptions } from './types';
-import { getOnDiskFilepath, loaderCache } from './utils';
+import { loaderCache } from './utils';
 
-const schemaCache: Map<string, GraphQLSchema> = new Map();
+const schemaCache = new Map<string, GraphQLSchema>();
 
-export function getSchema(options: ParserOptions = {}, gqlConfig: GraphQLConfig): GraphQLSchema | null {
-  const realFilepath = options.filePath ? getOnDiskFilepath(options.filePath) : null;
-  const projectForFile = realFilepath ? gqlConfig.getProjectForFile(realFilepath) : gqlConfig.getDefault();
-  const schemaKey = asArray(projectForFile.schema)
-    .sort()
-    .join(',');
-
+export function getSchema(projectForFile: GraphQLProjectConfig, options: ParserOptions = {}): GraphQLSchema | null {
+  const schemaKey = asArray(projectForFile.schema).sort().join(',');
   if (!schemaKey) {
     return null;
   }
-
   let schema = schemaCache.get(schemaKey);
 
   if (!schema) {
     schema = projectForFile.loadSchemaSync(projectForFile.schema, 'GraphQLSchema', {
       cache: loaderCache,
-      ...options.schemaOptions
+      ...options.schemaOptions,
     });
     schemaCache.set(schemaKey, schema);
   }

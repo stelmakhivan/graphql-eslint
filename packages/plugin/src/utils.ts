@@ -1,12 +1,12 @@
 import { statSync } from 'fs';
 import { dirname } from 'path';
-import { Lexer, GraphQLSchema, Source, Kind } from 'graphql';
+import { GraphQLSchema, Kind, Lexer, Source, TokenKind } from 'graphql';
 import { AST } from 'eslint';
 import { asArray, Source as LoaderSource } from '@graphql-tools/utils';
 import lowerCase from 'lodash.lowercase';
 import { GraphQLESLintRuleContext } from './types';
 import { SiblingOperations } from './sibling-operations';
-import { UsedFields, ReachableTypes } from './graphql-ast';
+import { ReachableTypes, UsedFields } from './graphql-ast';
 
 export function requireSiblingsOperations(
   ruleName: string,
@@ -77,9 +77,9 @@ export function extractTokens(source: Source): AST.Token[] {
   const tokens: AST.Token[] = [];
   let token = lexer.advance();
 
-  while (token && token.kind !== '<EOF>') {
+  while (token && token.kind !== TokenKind.EOF) {
     tokens.push({
-      type: token.kind as any,
+      type: token.kind as AST.TokenType,
       loc: {
         start: {
           line: token.line,
@@ -118,7 +118,6 @@ export const getOnDiskFilepath = (filepath: string): string => {
       return getOnDiskFilepath(dirname(filepath));
     }
   }
-
   return filepath;
 };
 
@@ -127,14 +126,13 @@ export const getTypeName = node => ('type' in node ? getTypeName(node.type) : no
 // Small workaround for the bug in older versions of @graphql-tools/load
 // Can be removed after graphql-config bumps to a new version
 export const loaderCache: Record<string, LoaderSource[]> = new Proxy(Object.create(null), {
-  get(cache, key) {
+  get(cache, key): void | unknown[] {
     const value = cache[key];
     if (value) {
       return asArray(value);
     }
-    return undefined;
   },
-  set(cache, key, value) {
+  set(cache, key, value): true {
     if (value) {
       cache[key] = asArray(value);
     }
@@ -191,7 +189,6 @@ export function getLocation(
   offset?: { offsetStart?: number; offsetEnd?: number }
 ): AST.SourceLocation {
   const { start } = loc;
-
   /*
    * ESLint has 0-based column number
    * https://eslint.org/docs/developer-guide/working-with-rules#contextreport

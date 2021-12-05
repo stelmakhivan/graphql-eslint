@@ -3,7 +3,7 @@ import { ASTNode, GraphQLError, TypeInfo, Source } from 'graphql';
 import { Linter } from 'eslint';
 import { convertToESTree } from './estree-parser';
 import { GraphQLESLintParseResult, ParserOptions, ParserServices } from './types';
-import { extractTokens } from './utils';
+import { getOnDiskFilepath, extractTokens } from './utils';
 import { getSchema } from './schema';
 import { getSiblingOperations } from './sibling-operations';
 import { loadGraphqlConfig } from './graphql-config';
@@ -15,11 +15,14 @@ export function parse(code: string, options?: ParserOptions): Linter.ESLintParse
 
 export function parseForESLint(code: string, options: ParserOptions = {}): GraphQLESLintParseResult {
   const gqlConfig = loadGraphqlConfig(options);
-  const schema = getSchema(options, gqlConfig);
+  const realFilepath = options.filePath ? getOnDiskFilepath(options.filePath) : null;
+  const projectForFile = realFilepath ? gqlConfig.getProjectForFile(realFilepath) : gqlConfig.getDefault();
+
+  const schema = getSchema(projectForFile, options);
   const parserServices: ParserServices = {
     hasTypeInfo: schema !== null,
     schema,
-    siblingOperations: getSiblingOperations(options, gqlConfig),
+    siblingOperations: getSiblingOperations(projectForFile),
     reachableTypes: getReachableTypes,
     usedFields: getUsedFields,
   };
@@ -32,7 +35,10 @@ export function parseForESLint(code: string, options: ParserOptions = {}): Graph
       noLocation: false,
     });
 
-    const { rootTree, comments } = convertToESTree(graphqlAst.document as ASTNode, schema ? new TypeInfo(schema) : null);
+    const { rootTree, comments } = convertToESTree(
+      graphqlAst.document as ASTNode,
+      schema ? new TypeInfo(schema) : null
+    );
     const tokens = extractTokens(new Source(code, filePath));
 
     return {

@@ -13,11 +13,11 @@ describe('schema', () => {
 
   const testSchema = (schema: string) => {
     const gqlConfig = loadGraphqlConfig({ schema });
-    const graphQLSchema = getSchema({ schema }, gqlConfig);
+    const graphQLSchema = getSchema(gqlConfig.getDefault(), { schema });
     expect(graphQLSchema).toBeInstanceOf(GraphQLSchema);
 
     const sdlString = printSchema(graphQLSchema);
-    expect(sdlString.trim()).toBe(schemaOnDisk.trim());
+    expect(sdlString).toBe(schemaOnDisk.trimEnd());
   };
 
   describe('GraphQLFileLoader', () => {
@@ -51,11 +51,11 @@ describe('schema', () => {
       // `child_process.execFileSync` that block Node.js event loop
       local = spawn(tsNodeCommand, [serverPath]);
       local.stdout.on('data', chunk => {
-        url = chunk.toString().trimRight();
+        url = chunk.toString().trimEnd();
         done();
       });
       local.stderr.on('data', chunk => {
-        throw new Error(chunk.toString().trimRight());
+        throw new Error(chunk.toString().trimEnd());
       });
     });
 
@@ -84,7 +84,7 @@ describe('schema', () => {
             [schemaUrl]: schemaOptions,
           },
         });
-        getSchema(undefined, gqlConfig);
+        getSchema(gqlConfig.getDefault());
       } catch (e) {
         expect(e.message).toMatch('"authorization":"Bearer Foo"');
       }
@@ -92,7 +92,7 @@ describe('schema', () => {
       try {
         // https://github.com/dotansimha/graphql-eslint/blob/master/docs/parser-options.md#schemaoptions
         const gqlConfig = loadGraphqlConfig({ schema: schemaUrl });
-        getSchema({ schemaOptions }, gqlConfig);
+        getSchema(gqlConfig.getDefault(), { schemaOptions });
       } catch (e) {
         expect(e.message).toMatch('"authorization":"Bearer Foo"');
       }

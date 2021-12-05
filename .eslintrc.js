@@ -24,6 +24,7 @@ module.exports = {
         'unicorn/prefer-array-some': 'error',
         'unicorn/prefer-includes': 'error',
         'unicorn/prefer-object-from-entries': 'error',
+        'unicorn/prefer-string-trim-start-end': 'error',
       },
     },
     {

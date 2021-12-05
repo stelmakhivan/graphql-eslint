@@ -65,7 +65,7 @@ const rule: GraphQLESLintRule = {
           const { kind, prev, next, value, line, column } = token;
 
           if (kind === TokenKind.COMMENT && prev && next) {
-            const isEslintComment = value.trimLeft().startsWith('eslint');
+            const isEslintComment = value.trimStart().startsWith('eslint');
             const linesAfter = next.line - line;
 
             if (!isEslintComment && line !== prev.line && next.kind === TokenKind.NAME && linesAfter < 2) {
