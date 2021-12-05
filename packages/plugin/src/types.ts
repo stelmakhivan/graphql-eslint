@@ -54,8 +54,8 @@ export type RuleDocsInfo<T> = {
   docs: Omit<Rule.RuleMetaData['docs'], 'category' | 'description'> & {
     category: CategoryType | CategoryType[];
     description: `${string}.`;
-    requiresSchema?: boolean;
-    requiresSiblings?: boolean;
+    requiresSchema?: true;
+    requiresSiblings?: true;
     examples?: {
       title: string;
       code: string;
@@ -68,6 +68,7 @@ export type RuleDocsInfo<T> = {
           operations?: T;
         };
     graphQLJSRuleName?: string;
+    isDisabledForAllConfig?: true
   };
 };
 

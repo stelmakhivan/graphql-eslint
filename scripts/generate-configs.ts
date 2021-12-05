@@ -4,7 +4,6 @@ import { format, resolveConfig } from 'prettier';
 import chalk from 'chalk';
 import { camelCase } from '../packages/plugin/src/utils';
 import { CategoryType, GraphQLESLintRule } from '../packages/plugin/src';
-import { DISABLED_RULES_FOR_ALL_CONFIG } from './constants';
 
 const BR = '';
 const prettierOptions = {
@@ -77,7 +76,7 @@ async function generateConfigs(): Promise<void> {
 
     return Object.fromEntries(
       filteredRules
-        .filter(ruleId => !DISABLED_RULES_FOR_ALL_CONFIG.has(ruleId))
+        .filter(ruleId => !rules[ruleId].meta.docs.isDisabledForAllConfig)
         .map(ruleId => [`@graphql-eslint/${ruleId}`, getRuleOptions(ruleId, rules[ruleId])])
     );
   };

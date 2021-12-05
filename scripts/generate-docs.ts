@@ -4,7 +4,6 @@ import dedent from 'dedent';
 import md from 'json-schema-to-markdown';
 import { format } from 'prettier';
 import { rules } from '../packages/plugin/src';
-import { DISABLED_RULES_FOR_ALL_CONFIG } from './constants';
 
 const BR = '';
 const DOCS_PATH = resolve(process.cwd(), 'docs');
@@ -142,12 +141,11 @@ function generateDocs(): void {
     .map(([ruleName, rule]) => {
       const link = `[${ruleName}](rules/${ruleName}.md)`;
       const { docs, fixable } = rule.meta;
-      const isDisabled = DISABLED_RULES_FOR_ALL_CONFIG.has(ruleName);
 
       return [
         link,
         docs.description.split('\n')[0],
-        isDisabled ? '' : docs.recommended ? '![recommended][]' : '![all][]',
+        docs.isDisabledForAllConfig ? '' : docs.recommended ? '![recommended][]' : '![all][]',
         docs.graphQLJSRuleName ? Icon.GRAPHQL_JS : Icon.GRAPHQL_ESLINT,
         fixable ? Icon.FIXABLE : '',
       ];
