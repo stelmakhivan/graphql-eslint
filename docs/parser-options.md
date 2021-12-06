@@ -2,9 +2,9 @@
 
 ### `graphQLParserOptions`
 
-With this configuration, you can specify custom configurations for GraphQL's `parse` method. By default, `graphql-eslint` parser just adds `noLocation: false` to make sure all parsed AST has `location` set, since we need this for tokening and for converting the GraphQL AST into ESTree.
+With this configuration, you can specify custom configurations for GraphQL's `parse` method. By default, `graphql-eslint` parser just adds `noLocation: false` to make sure all parsed AST has `location` set, since we need this for tokenizing and for converting the GraphQL AST into ESTree.
 
-You can find the [complete set of options for this object here](https://github.com/graphql/graphql-js/blob/master/src/language/parser.d.ts#L7)
+You can find the [complete set of options for this object here](https://github.com/graphql/graphql-js/blob/6e48d16f92b9a6df8638b1486354c6be2537033b/src/language/parser.ts#L73)
 
 ### `skipGraphQLConfig`
 
@@ -82,4 +82,4 @@ If you wish to send additional configuration for the `graphql-tools` loaders tha
   }
 ```
 
-> The configuration here is flexible, and will be sent to `graphql-tools` and it's loaders. So depends on the schema source, the options may vary. [You can read more about these loaders and their configuration here](https://graphql-tools.com/docs/api/interfaces/_loaders_graphql_file_src_index_.graphqlfileloaderoptions).
+> The configuration here is flexible, and will be sent to `graphql-tools` and it's loaders. So depends on the schema source, the options may vary. [You can read more about these loaders and their configuration here](https://graphql-tools.com/docs/api/interfaces/loaders_graphql_file_src.GraphQLFileLoaderOptions#properties).
