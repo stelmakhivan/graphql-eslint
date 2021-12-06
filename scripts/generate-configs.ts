@@ -6,26 +6,38 @@ import { camelCase } from '../packages/plugin/src/utils';
 import { CategoryType, GraphQLESLintRule } from '../packages/plugin/src';
 
 const BR = '';
-const prettierOptions = {
-  parser: 'typescript',
-  ...resolveConfig.sync(__dirname),
-};
+const prettierOptions = resolveConfig.sync(__dirname);
 const SRC_PATH = join(process.cwd(), 'packages/plugin/src');
 const IGNORE_FILES = ['index.ts', 'graphql-js-validation.ts'];
 
-function writeFormattedFile(filePath: string, typeScriptCode: string): void {
-  const code = [
-    '/*',
-    ' * 🚨 IMPORTANT! Do not manually modify this file. Run: `yarn generate-configs`',
-    ' */',
-    BR,
-    typeScriptCode,
-  ].join('\n');
+type WriteFile = {
+  (filePath: `${string}.ts`, code: string): void;
+  (filePath: `configs/${string}.json`, code: Record<string, unknown>): void;
+};
 
-  const formattedCode = format(code, prettierOptions);
+const writeFormattedFile: WriteFile = (filePath, code): void => {
+  const isJson = filePath.endsWith('.json');
+
+  const formattedCode = isJson
+    ? format(JSON.stringify(code), {
+        ...prettierOptions,
+        parser: 'json',
+        printWidth: 80,
+      })
+    : [
+        '/*',
+        ' * 🚨 IMPORTANT! Do not manually modify this file. Run: `yarn generate-configs`',
+        ' */',
+        BR,
+        format(code, {
+          ...prettierOptions,
+          parser: 'typescript',
+        }),
+      ].join('\n');
+
   writeFileSync(join(SRC_PATH, filePath), formattedCode);
   console.log(`✅  ${chalk.green(filePath)} file generated`);
-}
+};
 
 const ruleFilenames = readdirSync(join(SRC_PATH, 'rules'))
   .filter(filename => filename.endsWith('.ts') && !IGNORE_FILES.includes(filename))
@@ -81,37 +93,25 @@ async function generateConfigs(): Promise<void> {
     );
   };
 
-  writeFormattedFile(
-    'configs/schema-recommended.ts',
-    `export default ${JSON.stringify({
-      extends: 'plugin:@graphql-eslint/base',
-      rules: getRulesConfig('Schema', true),
-    })}`
-  );
+  writeFormattedFile('configs/schema-recommended.json', {
+    extends: './base.json',
+    rules: getRulesConfig('Schema', true),
+  });
 
-  writeFormattedFile(
-    'configs/operations-recommended.ts',
-    `export default ${JSON.stringify({
-      extends: 'plugin:@graphql-eslint/base',
-      rules: getRulesConfig('Operations', true),
-    })}`
-  );
+  writeFormattedFile('configs/operations-recommended.json', {
+    extends: './base.json',
+    rules: getRulesConfig('Operations', true),
+  });
 
-  writeFormattedFile(
-    'configs/schema-all.ts',
-    `export default ${JSON.stringify({
-      extends: ['plugin:@graphql-eslint/base', 'plugin:@graphql-eslint/schema-recommended'],
-      rules: getRulesConfig('Schema', false),
-    })}`
-  );
+  writeFormattedFile('configs/schema-all.json', {
+    extends: ['./base.json', './schema-recommended.json'],
+    rules: getRulesConfig('Schema', false),
+  });
 
-  writeFormattedFile(
-    'configs/operations-all.ts',
-    `export default ${JSON.stringify({
-      extends: ['plugin:@graphql-eslint/base', 'plugin:@graphql-eslint/operations-recommended'],
-      rules: getRulesConfig('Operations', false),
-    })}`
-  );
+  writeFormattedFile('configs/operations-all.json', {
+    extends: ['./base.json', './operations-recommended.json'],
+    rules: getRulesConfig('Operations', false),
+  });
 }
 
 generateRules();
