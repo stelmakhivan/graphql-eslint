@@ -84,8 +84,7 @@ new GraphQLRuleTester({ schema: SCHEMA }).runGraphQLTests('no-unused-fields', ru
   ],
   invalid: [
     {
-      code: `
-        # normalize graphql
+      code: /* GraphQL */ `
         type User {
           id: ID!
           firstName: String
@@ -110,7 +109,6 @@ new GraphQLRuleTester({ schema: SCHEMA }).runGraphQLTests('no-unused-fields', ru
     },
     {
       code: /* GraphQL */ `
-        # normalize graphql
         type Query {
           user(id: ID!): User
         }

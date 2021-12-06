@@ -3,7 +3,7 @@ import { GraphQLESTreeNode } from '../estree-parser';
 import { GraphQLESLintRule } from '../types';
 import { getLocation } from '../utils';
 
-export interface ExceptionRule {
+export type ExceptionRule = {
   types?: string[];
   suffixes?: string[];
 }
@@ -14,7 +14,7 @@ type StrictIdInTypesRuleConfig = {
   exceptions?: ExceptionRule;
 };
 
-interface ShouldIgnoreNodeParams {
+type ShouldIgnoreNodeParams = {
   node: GraphQLESTreeNode<ObjectTypeDefinitionNode>;
   exceptions: ExceptionRule;
 }

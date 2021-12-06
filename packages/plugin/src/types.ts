@@ -7,10 +7,10 @@ import { GraphQLESTreeNode } from './estree-parser';
 import { SiblingOperations } from './sibling-operations';
 import { getReachableTypes, getUsedFields } from './graphql-ast';
 
-export interface ParserOptions {
+export type ParserOptions = {
   schema?: SchemaPointer | Record<string, { headers: Record<string, string> }>;
   documents?: DocumentPointer;
-  operations?: DocumentPointer; // legacy
+  operations?: DocumentPointer; // TODO: Should we rename to documents to make consistency with graphql-config?
   extensions?: IExtensions;
   include?: string | string[];
   exclude?: string | string[];
@@ -21,7 +21,7 @@ export interface ParserOptions {
   graphQLParserOptions?: Omit<GraphQLParseOptions, 'noLocation'>;
   skipGraphQLConfig?: boolean;
   filePath?: string;
-}
+};
 
 export type ParserServices = {
   hasTypeInfo: boolean;
@@ -68,7 +68,7 @@ export type RuleDocsInfo<T> = {
           operations?: T;
         };
     graphQLJSRuleName?: string;
-    isDisabledForAllConfig?: true
+    isDisabledForAllConfig?: true;
   };
 };
 

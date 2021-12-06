@@ -11,6 +11,7 @@ module.exports = {
       plugins: ['unicorn'],
       rules: {
         '@typescript-eslint/array-type': ['error', { readonly: 'generic' }],
+        '@typescript-eslint/consistent-type-definitions': ['error', 'type'],
         '@typescript-eslint/no-explicit-any': 'off',
         '@typescript-eslint/prefer-optional-chain': 'error',
         'import/no-useless-path-segments': ['error', { noUselessIndex: true, commonjs: true }],

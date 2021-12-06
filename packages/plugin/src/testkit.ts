@@ -111,12 +111,12 @@ function getVerifyConfig(ruleId: string, testerConfig, testCase) {
       ...parserOptions,
     },
     rules: {
-      [ruleId]: ['error', ...(Array.isArray(options) ? options : [])],
+      [ruleId]: options ? ['error', ...options] : 'error',
     },
   };
 }
 
-const parsers = new WeakMap();
+const parsers = new WeakMap<Linter, Set<string>>();
 
 function defineParser(linter: Linter, parser: string): void {
   if (!parser) {

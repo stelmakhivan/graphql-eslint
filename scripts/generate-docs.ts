@@ -3,6 +3,7 @@ import { resolve } from 'path';
 import dedent from 'dedent';
 import md from 'json-schema-to-markdown';
 import { format } from 'prettier';
+import { asArray } from '@graphql-tools/utils';
 import { rules } from '../packages/plugin/src';
 
 const BR = '';
@@ -48,7 +49,7 @@ function generateDocs(): void {
     if (deprecated) {
       blocks.push(`- ❗ DEPRECATED ❗`);
     }
-    const categories = Array.isArray(docs.category) ? docs.category : [docs.category];
+    const categories = asArray(docs.category);
     if (docs.recommended) {
       const configNames = categories.map(category => `"plugin:@graphql-eslint/${category.toLowerCase()}-recommended"`);
       blocks.push(
