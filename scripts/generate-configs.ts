@@ -20,7 +20,6 @@ const writeFormattedFile: WriteFile = (filePath, code): void => {
 
   const formattedCode = isJson
     ? format(JSON.stringify(code), {
-        ...prettierOptions,
         parser: 'json',
         printWidth: 80,
       })

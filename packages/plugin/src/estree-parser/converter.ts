@@ -83,7 +83,7 @@ const convertNode =
       leadingComments,
       typeInfo: () => calculatedTypeInfo,
       rawNode,
-    } as const;
+    };
 
     return hasTypeField(node)
       ? ({

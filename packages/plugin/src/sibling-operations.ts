@@ -113,7 +113,7 @@ export function getSiblingOperations(projectForFile: GraphQLProjectConfig): Sibl
             if (definition.kind === Kind.FRAGMENT_DEFINITION) {
               result.push({
                 filePath: source.location,
-                document: definition as FragmentDefinitionNode,
+                document: definition,
               });
             }
           }
@@ -134,7 +134,7 @@ export function getSiblingOperations(projectForFile: GraphQLProjectConfig): Sibl
             if (definition.kind === Kind.OPERATION_DEFINITION) {
               result.push({
                 filePath: source.location,
-                document: definition as OperationDefinitionNode,
+                document: definition,
               });
             }
           }
@@ -149,7 +149,7 @@ export function getSiblingOperations(projectForFile: GraphQLProjectConfig): Sibl
     const collectFragments = (
       selectable: SelectionSetNode | OperationDefinitionNode | FragmentDefinitionNode,
       recursive = true,
-      collected: Map<string, FragmentDefinitionNode> = new Map()
+      collected = new Map<string, FragmentDefinitionNode>()
     ) => {
       visit(selectable, {
         FragmentSpread(spread: FragmentSpreadNode) {

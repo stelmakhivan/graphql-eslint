@@ -1,4 +1,4 @@
-import { parseForESLint } from '../src/parser';
+import { parseForESLint } from '../src';
 
 describe('Parser', () => {
   it('parseForESLint() should return ast and tokens', () => {
@@ -56,8 +56,12 @@ describe('Parser', () => {
       }
     `;
 
-    const result = parseForESLint(code, { filePath: 'test.graphql', schema, skipGraphQLConfig: true });
-    const selectionSet = (result.ast.body[0] as any).definitions[0].selectionSet;
+    const result = parseForESLint(code, {
+      filePath: 'test.graphql',
+      schema,
+      skipGraphQLConfig: true,
+    });
+    const { selectionSet } = (result.ast.body[0] as any).definitions[0];
     const typeInfo = selectionSet.typeInfo();
     expect(typeInfo).toBeDefined();
     expect(typeInfo.gqlType.name).toEqual('Query');

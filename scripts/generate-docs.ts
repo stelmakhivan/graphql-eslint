@@ -1,4 +1,4 @@
-import { writeFileSync, existsSync } from 'fs';
+import { writeFileSync } from 'fs';
 import { resolve } from 'path';
 import dedent from 'dedent';
 import md from 'json-schema-to-markdown';
@@ -121,12 +121,10 @@ function generateDocs(): void {
         `- [Test source](https://github.com/graphql/graphql-js/tree/main/src/validation/__tests__/${graphQLJSRuleName}Rule-test.ts)`
       );
     } else {
-      blocks.push(`- [Rule source](../../packages/plugin/src/rules/${ruleName}.ts)`);
-      const testPath = `packages/plugin/tests/${ruleName}.spec.ts`;
-      const isTestExists = existsSync(resolve(process.cwd(), testPath));
-      if (isTestExists) {
-        blocks.push(`- [Test source](../../${testPath})`);
-      }
+      blocks.push(
+        `- [Rule source](../../packages/plugin/src/rules/${ruleName}.ts)`,
+        `- [Test source](../../packages/plugin/tests/${ruleName}.spec.ts)`
+      );
     }
 
     blocks.push(BR);

@@ -92,7 +92,7 @@ const rule: GraphQLESLintRule<[RequireIdWhenAvailableRuleConfig], true> = {
           if (rawType instanceof GraphQLObjectType || rawType instanceof GraphQLInterfaceType) {
             const fields = rawType.getFields();
             const hasIdFieldInType = !!fields[fieldName];
-            const checkedFragmentSpreads: Set<string> = new Set();
+            const checkedFragmentSpreads = new Set<string>();
 
             if (hasIdFieldInType) {
               let found = false;

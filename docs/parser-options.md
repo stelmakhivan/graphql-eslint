@@ -8,7 +8,7 @@ You can find the [complete set of options for this object here](https://github.c
 
 ### `skipGraphQLConfig`
 
-If you are using [`graphql-config`](https://graphql-config.com/) in your project, the parser will automatically use that to load your default GraphQL schema.
+If you are using [`graphql-config`](https://graphql-config.com) in your project, the parser will automatically use that to load your default GraphQL schema.
 
 You can disable this behaviour using `skipGraphQLConfig: true` in the `parserOptions`:
 
@@ -82,4 +82,4 @@ If you wish to send additional configuration for the `graphql-tools` loaders tha
   }
 ```
 
-> The configuration here is flexible, and will be sent to `graphql-tools` and it's loaders. So depends on the schema source, the options may vary. [You can read more about these loaders and their configuration here](https://www.graphql-tools.com/docs/api/interfaces/_loaders_graphql_file_src_index_.graphqlfileloaderoptions).
+> The configuration here is flexible, and will be sent to `graphql-tools` and it's loaders. So depends on the schema source, the options may vary. [You can read more about these loaders and their configuration here](https://graphql-tools.com/docs/api/interfaces/_loaders_graphql_file_src_index_.graphqlfileloaderoptions).

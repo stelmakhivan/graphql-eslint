@@ -58,13 +58,11 @@ export class GraphQLRuleTester extends RuleTester {
             if (typeof test === 'string') {
               return test;
             }
-            // eslint-disable-next-line @typescript-eslint/no-unused-vars
             const { name, ...testCaseOptions } = test;
             return testCaseOptions;
           }),
           invalid: tests.invalid.map(test => {
             // ESLint 7 throws an error on CI - Unexpected top-level property "name"
-            // eslint-disable-next-line @typescript-eslint/no-unused-vars
             const { name, ...testCaseOptions } = test;
             return testCaseOptions;
           }),
