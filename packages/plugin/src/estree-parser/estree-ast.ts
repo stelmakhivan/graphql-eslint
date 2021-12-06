@@ -18,14 +18,13 @@ export type TypeInformation = {
   gqlType: ReturnType<TypeInfo['getType']>;
 };
 
-export type SingleESTreeNode<T, WithTypeInfo extends boolean> = T extends ASTNode | ValueNode
-  ? SafeGraphQLType<T> &
-      Pick<BaseNode, 'leadingComments' | 'loc' | 'range'> & {
-        type: T['kind'];
-        gqlLocation: Pick<Location, 'start' | 'end'>;
-        // eslint-disable-next-line @typescript-eslint/ban-types -- Record<string, never> don't work
-      } & { typeInfo: () => WithTypeInfo extends true ? TypeInformation : {} }
-  : T;
+export type SingleESTreeNode<T extends ASTNode | ValueNode, WithTypeInfo extends boolean> = SafeGraphQLType<T> &
+  Pick<BaseNode, 'leadingComments' | 'loc' | 'range'> & {
+    type: T['kind'];
+    gqlLocation: Pick<Location, 'start' | 'end'>;
+    // eslint-disable-next-line @typescript-eslint/ban-types -- Record<string, never> don't work
+    typeInfo: () => WithTypeInfo extends true ? TypeInformation : {};
+  };
 
 export type GraphQLESTreeNode<T, WithTypeInfo extends boolean = false> = T extends ASTNode | ValueNode
   ? { rawNode: () => T } & {

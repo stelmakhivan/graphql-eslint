@@ -40,8 +40,8 @@ const convertNode =
           ]
         : [];
 
-    const calculatedTypeInfo = typeInfo
-      ? <TypeInformation>{
+    const calculatedTypeInfo: TypeInformation | Record<string, never> = typeInfo
+      ? {
           argument: typeInfo.getArgument(),
           defaultValue: typeInfo.getDefaultValue(),
           directive: typeInfo.getDirective(),
