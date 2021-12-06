@@ -55,16 +55,16 @@ const convertNode =
       : {};
 
     const rawNode = () => {
-      if (!parent || key === undefined) {
-        return 'definitions' in node
-          ? <DocumentNode>{
-              kind: Kind.DOCUMENT,
-              loc: node.loc,
-              definitions: node.definitions.map(d => (d as any).rawNode()),
-            }
-          : node;
+      if (parent && key !== undefined) {
+        return parent[key];
       }
-      return parent[key];
+      return node.kind === Kind.DOCUMENT
+        ? <DocumentNode>{
+            kind: node.kind,
+            loc: node.loc,
+            definitions: node.definitions.map(d => (d as any).rawNode()),
+          }
+        : node;
     };
 
     const commonFields = {
@@ -81,6 +81,7 @@ const convertNode =
         end: node.loc.end,
       },
       leadingComments,
+      // Use function to prevent RangeError: Maximum call stack size exceeded
       typeInfo: () => calculatedTypeInfo,
       rawNode,
     };
