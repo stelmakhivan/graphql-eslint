@@ -1,6 +1,5 @@
-import { GraphQLRuleTester } from '../src/testkit';
+import { GraphQLRuleTester, ParserOptions } from '../src';
 import rule from '../src/rules/require-id-when-available';
-import { ParserOptions } from '../src/types';
 
 const TEST_SCHEMA = /* GraphQL */ `
   type Query {

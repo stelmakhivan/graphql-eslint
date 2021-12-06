@@ -1,9 +1,8 @@
-import { GraphQLRuleTester } from '../src/testkit';
-import { GRAPHQL_JS_VALIDATIONS } from '../src/rules/graphql-js-validation';
+import { GraphQLRuleTester, rules } from '../src';
 
 const ruleTester = new GraphQLRuleTester();
 
-ruleTester.runGraphQLTests('possible-type-extension', GRAPHQL_JS_VALIDATIONS['possible-type-extension'], {
+ruleTester.runGraphQLTests('possible-type-extension', rules['possible-type-extension'], {
   valid: [
     /* GraphQL */ `
       type User {

@@ -1,14 +1,13 @@
-import { GraphQLRuleTester } from '../src/testkit';
+import { GraphQLRuleTester, ParserOptions } from '../src';
 import rule from '../src/rules/selection-set-depth';
-import { ParserOptions } from '../src/types';
 
 const WITH_SIBLINGS = {
   parserOptions: <ParserOptions>{
-    operations: [
-      `fragment AlbumFields on Album {
+    operations: /* GraphQL */ `
+      fragment AlbumFields on Album {
         id
-      }`,
-    ],
+      }
+    `,
   },
 };
 
@@ -18,12 +17,10 @@ ruleTester.runGraphQLTests('selection-set-depth', rule, {
   valid: [
     {
       options: [{ maxDepth: 2 }],
-      code: /* GraphQL */ `
+      code: `
         query deep2 {
-          viewer {
-            # Level 0
-            albums {
-              # Level 1
+          viewer { # Level 0
+            albums { # Level 1
               title # Level 2
             }
           }

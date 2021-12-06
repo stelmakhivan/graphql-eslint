@@ -84,7 +84,7 @@ async function generateConfigs(): Promise<void> {
   writeFormattedFile(
     'configs/schema-recommended.ts',
     `export default ${JSON.stringify({
-      extends: ['plugin:@graphql-eslint/base'],
+      extends: 'plugin:@graphql-eslint/base',
       rules: getRulesConfig('Schema', true),
     })}`
   );
@@ -92,7 +92,7 @@ async function generateConfigs(): Promise<void> {
   writeFormattedFile(
     'configs/operations-recommended.ts',
     `export default ${JSON.stringify({
-      extends: ['plugin:@graphql-eslint/base'],
+      extends: 'plugin:@graphql-eslint/base',
       rules: getRulesConfig('Operations', true),
     })}`
   );

@@ -1,6 +1,4 @@
-import { GraphQLRuleTester } from '../src/testkit';
-import { GRAPHQL_JS_VALIDATIONS } from '../src/rules/graphql-js-validation';
-import { ParserOptions } from '../src/types';
+import { GraphQLRuleTester, ParserOptions, rules } from '../src';
 
 const TEST_SCHEMA = /* GraphQL */`
   type Query {
@@ -26,7 +24,7 @@ const WITH_SCHEMA = {
 
 const ruleTester = new GraphQLRuleTester();
 
-ruleTester.runGraphQLTests('lone-schema-definition', GRAPHQL_JS_VALIDATIONS['lone-schema-definition'], {
+ruleTester.runGraphQLTests('lone-schema-definition', rules['lone-schema-definition'], {
   valid: [{ ...WITH_SCHEMA, code: TEST_SCHEMA }],
   invalid: [
     {

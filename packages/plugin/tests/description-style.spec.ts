@@ -1,4 +1,4 @@
-import { GraphQLRuleTester } from '../src/testkit';
+import { GraphQLRuleTester } from '../src';
 import rule from '../src/rules/description-style';
 
 const ruleTester = new GraphQLRuleTester();

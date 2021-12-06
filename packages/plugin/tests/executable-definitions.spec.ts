@@ -1,6 +1,4 @@
-import { GraphQLRuleTester } from '../src/testkit';
-import { GRAPHQL_JS_VALIDATIONS } from '../src/rules/graphql-js-validation';
-import { ParserOptions } from '../src/types';
+import { GraphQLRuleTester, ParserOptions, rules } from '../src';
 
 const TEST_SCHEMA = /* GraphQL */ `
   type Query {
@@ -25,7 +23,7 @@ const WITH_SCHEMA = {
 
 const ruleTester = new GraphQLRuleTester();
 
-ruleTester.runGraphQLTests('executable-definitions', GRAPHQL_JS_VALIDATIONS['executable-definitions'], {
+ruleTester.runGraphQLTests('executable-definitions', rules['executable-definitions'], {
   valid: [
     {
       ...WITH_SCHEMA,
