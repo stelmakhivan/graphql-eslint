@@ -17,7 +17,7 @@ describe('schema', () => {
     expect(graphQLSchema).toBeInstanceOf(GraphQLSchema);
 
     const sdlString = printSchema(graphQLSchema);
-    expect(sdlString).toBe(schemaOnDisk.trimEnd());
+    expect(sdlString.trimEnd()).toBe(schemaOnDisk.trimEnd());
   };
 
   describe('GraphQLFileLoader', () => {
