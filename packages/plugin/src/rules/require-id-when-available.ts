@@ -144,7 +144,7 @@ const rule: GraphQLESLintRule<[RequireIdWhenAvailableRuleConfig], true> = {
                   messageId: REQUIRE_ID_WHEN_AVAILABLE,
                   data: {
                     checkedFragments:
-                      checkedFragmentSpreads.size === 0 ? '' : `(${Array.from(checkedFragmentSpreads).join(', ')})`,
+                      checkedFragmentSpreads.size === 0 ? '' : `(${[...checkedFragmentSpreads].join(', ')})`,
                     fieldName,
                   },
                 });

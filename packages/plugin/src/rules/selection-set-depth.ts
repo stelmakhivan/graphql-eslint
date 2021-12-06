@@ -88,7 +88,7 @@ const rule: GraphQLESLintRule<[SelectionSetDepthRuleConfig]> = {
 
     try {
       siblings = requireSiblingsOperations('selection-set-depth', context);
-    } catch (e) {
+    } catch {
       // eslint-disable-next-line no-console
       console.warn(
         `Rule "selection-set-depth" works best with siblings operations loaded. For more info: http://bit.ly/graphql-eslint-operations`
@@ -113,7 +113,7 @@ const rule: GraphQLESLintRule<[SelectionSetDepthRuleConfig]> = {
 
           checkFn({
             getDocument: () => document,
-            reportError: (error: GraphQLError) => {
+            reportError(error: GraphQLError) {
               context.report({
                 loc: getLocation({ start: error.locations[0] }),
                 message: error.message,

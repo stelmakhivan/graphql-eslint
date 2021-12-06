@@ -57,10 +57,10 @@ const validationToRule = (
 
   try {
     ruleFn = require(`graphql/validation/rules/${docs.graphQLJSRuleName}Rule`)[`${docs.graphQLJSRuleName}Rule`];
-  } catch (e) {
+  } catch {
     try {
       ruleFn = require(`graphql/validation/rules/${docs.graphQLJSRuleName}`)[`${docs.graphQLJSRuleName}Rule`];
-    } catch (e) {
+    } catch {
       ruleFn = require('graphql/validation')[`${docs.graphQLJSRuleName}Rule`];
     }
   }

@@ -18,7 +18,7 @@ export type TypeInformation = {
   gqlType: ReturnType<TypeInfo['getType']>;
 };
 
-export type SingleESTreeNode<T extends ASTNode | ValueNode, WithTypeInfo extends boolean> = SafeGraphQLType<T> &
+type SingleESTreeNode<T extends ASTNode | ValueNode, WithTypeInfo extends boolean> = SafeGraphQLType<T> &
   Pick<BaseNode, 'leadingComments' | 'loc' | 'range'> & {
     type: T['kind'];
     gqlLocation: Pick<Location, 'start' | 'end'>;
