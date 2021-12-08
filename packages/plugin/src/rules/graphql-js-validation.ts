@@ -219,12 +219,12 @@ export const GRAPHQL_JS_VALIDATIONS: Record<string, GraphQLESLintRule> = Object.
       description: `A GraphQL document is only valid if all \`...Fragment\` fragment spreads refer to fragments defined in the same document.`,
       examples: [
         {
-          title: 'Incorrect (fragment not defined in the document)',
+          title: 'Incorrect',
           code: /* GraphQL */ `
             query {
               user {
                 id
-                ...UserFields
+                ...UserFields # fragment not defined in the document
               }
             }
           `,
@@ -246,44 +246,27 @@ export const GRAPHQL_JS_VALIDATIONS: Record<string, GraphQLESLintRule> = Object.
           `,
         },
         {
-          title: 'Correct (existing import to UserFields fragment)',
+          title: 'Correct (`UserFields` fragment located in a separate file)',
           code: /* GraphQL */ `
-            #import '../UserFields.gql'
-
+            # user.gql
             query {
               user {
                 id
                 ...UserFields
               }
             }
+
+            # user-fields.gql
+            fragment UserFields on User {
+              id
+            }
           `,
         },
-        {
-          title:
-            "False positive case\n\nFor extracting documents from code under the hood we use [graphql-tag-pluck](https://graphql-tools.com/docs/graphql-tag-pluck) that [don't support string interpolation](https://stackoverflow.com/questions/62749847/graphql-codegen-dynamic-fields-with-interpolation/62751311#62751311) for this moment.",
-          code: `
-            const USER_FIELDS = gql\`
-              fragment UserFields on User {
-                id
-              }
-            \`
-            
-            const GET_USER = /* GraphQL */ \`
-              # eslint @graphql-eslint/known-fragment-names: 'error'
-
-              query User {
-                user {
-                  ...UserFields
-                }
-              }
-
-              # Will give false positive error 'Unknown fragment "UserFields"'
-              \${USER_FIELDS}
-            \``,
-        },
       ],
+      requiresSchema: true,
+      requiresSiblings: true,
     },
-    importFiles
+    true
   ),
   validationToRule('known-type-names', 'KnownTypeNames', {
     category: ['Schema', 'Operations'],
@@ -311,7 +294,7 @@ export const GRAPHQL_JS_VALIDATIONS: Record<string, GraphQLESLintRule> = Object.
       requiresSchema: true,
       requiresSiblings: true,
     },
-    true,
+    true
   ),
   validationToRule(
     'no-unused-fragments',
