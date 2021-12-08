@@ -1,19 +1,17 @@
 import {
-  ASTNode,
-  DocumentNode,
-  FragmentDefinitionNode,
-  GraphQLSchema,
   Kind,
+  ASTNode,
   TypeInfo,
-  validate,
+  DocumentNode,
+  GraphQLSchema,
   ValidationRule,
+  FragmentDefinitionNode,
+  OperationDefinitionNode,
   visit,
+  validate,
   visitWithTypeInfo,
 } from 'graphql';
 import { validateSDL } from 'graphql/validation/validate';
-import { parseImportLine, processImport } from '@graphql-tools/import';
-import { existsSync } from 'fs';
-import { join, dirname } from 'path';
 import { GraphQLESLintRule, GraphQLESLintRuleContext } from '../types';
 import { getLocation, requireGraphQLSchemaFromContext, requireSiblingsOperations } from '../utils';
 import { GraphQLESTreeNode } from '../estree-parser';
@@ -47,22 +45,15 @@ function validateDoc(
   }
 }
 
-const isGraphQLImportFile = rawSDL => {
-  const trimmedRawSDL = rawSDL.trimLeft();
-  return trimmedRawSDL.startsWith('# import') || trimmedRawSDL.startsWith('#import');
-};
+type FragmentListInfo = `${string}:${string}`;
 
-const handleMissingFragments = ({
-  schema,
-  node,
-  ruleId,
-  context,
-}: {
-  schema: GraphQLSchema;
-  node: DocumentNode;
-  ruleId: string;
-  context: GraphQLESLintRuleContext;
-}): DocumentNode => {
+const getFragmentDefsAndFragmentSpreads = (
+  schema: GraphQLSchema,
+  node: DocumentNode
+): {
+  fragmentDefs: Set<FragmentListInfo>;
+  fragmentSpreads: Set<FragmentListInfo>;
+} => {
   const typeInfo = new TypeInfo(schema);
   const fragmentDefs = new Set<`${string}:${string}`>();
   const fragmentSpreads = new Set<`${string}:${string}`>();
@@ -80,8 +71,23 @@ const handleMissingFragments = ({
   });
 
   visit(node, visitor);
+  return { fragmentDefs, fragmentSpreads };
+};
 
-  const missingFragments = [...fragmentSpreads].filter(name => !fragmentDefs.has(name));
+const getMissingFragments = (schema: GraphQLSchema, node: DocumentNode): FragmentListInfo[] => {
+  const { fragmentDefs, fragmentSpreads } = getFragmentDefsAndFragmentSpreads(schema, node);
+  return [...fragmentSpreads].filter(name => !fragmentDefs.has(name));
+};
+
+type GetDocumentNode = (props: {
+  schema: GraphQLSchema;
+  node: DocumentNode;
+  ruleId: string;
+  context: GraphQLESLintRuleContext;
+}) => DocumentNode;
+
+const handleMissingFragments: GetDocumentNode = ({ schema, node, ruleId, context }) => {
+  const missingFragments = getMissingFragments(schema, node);
 
   if (missingFragments.length > 0) {
     const siblings = requireSiblingsOperations(ruleId, context);
@@ -116,7 +122,7 @@ const validationToRule = (
   name: string,
   ruleName: string,
   docs: GraphQLESLintRule['meta']['docs'],
-  shouldAddMissingFragments = false
+  getDocumentNode?: GetDocumentNode
 ): Record<typeof name, GraphQLESLintRule<any, true>> => {
   let ruleFn: null | ValidationRule = null;
 
@@ -162,8 +168,8 @@ const validationToRule = (
               node,
               context,
               schema,
-              shouldAddMissingFragments
-                ? handleMissingFragments({
+              getDocumentNode
+                ? getDocumentNode({
                     schema,
                     node: documentNode,
                     ruleId: name,
@@ -177,15 +183,6 @@ const validationToRule = (
       },
     },
   };
-};
-
-const importFiles = (context: GraphQLESLintRuleContext) => {
-  const code = context.getSourceCode().text;
-  if (!isGraphQLImportFile(code)) {
-    return null;
-  }
-  // Import documents because file contains '#import' comments
-  return processImport(context.getFilename());
 };
 
 export const GRAPHQL_JS_VALIDATIONS: Record<string, GraphQLESLintRule> = Object.assign(
@@ -217,6 +214,7 @@ export const GRAPHQL_JS_VALIDATIONS: Record<string, GraphQLESLintRule> = Object.
     {
       category: 'Operations',
       description: `A GraphQL document is only valid if all \`...Fragment\` fragment spreads refer to fragments defined in the same document.`,
+      requiresSiblings: true,
       examples: [
         {
           title: 'Incorrect',
@@ -263,10 +261,8 @@ export const GRAPHQL_JS_VALIDATIONS: Record<string, GraphQLESLintRule> = Object.
           `,
         },
       ],
-      requiresSchema: true,
-      requiresSiblings: true,
     },
-    true
+    handleMissingFragments
   ),
   validationToRule('known-type-names', 'KnownTypeNames', {
     category: ['Schema', 'Operations'],
@@ -291,10 +287,9 @@ export const GRAPHQL_JS_VALIDATIONS: Record<string, GraphQLESLintRule> = Object.
     {
       category: 'Operations',
       description: `A GraphQL operation is only valid if all variables encountered, both directly and via fragment spreads, are defined by that operation.`,
-      requiresSchema: true,
       requiresSiblings: true,
     },
-    true
+    handleMissingFragments
   ),
   validationToRule(
     'no-unused-fragments',
@@ -304,37 +299,43 @@ export const GRAPHQL_JS_VALIDATIONS: Record<string, GraphQLESLintRule> = Object.
       description: `A GraphQL document is only valid if all fragment definitions are spread within operations, or spread within other fragments spread within operations.`,
       requiresSiblings: true,
     },
-    context => {
-      const siblings = requireSiblingsOperations('no-unused-fragments', context);
-      const documents = [...siblings.getOperations(), ...siblings.getFragments()]
-        .filter(({ document }) => isGraphQLImportFile(document.loc.source.body))
-        .map(({ filePath, document }) => ({
-          filePath,
-          code: document.loc.source.body,
-        }));
+    ({ context, node, schema, ruleId }) => {
+      const siblings = requireSiblingsOperations(ruleId, context);
+      const filePathForDocumentsMap = [...siblings.getOperations(), ...siblings.getFragments()].reduce<
+        Record<string, (OperationDefinitionNode | FragmentDefinitionNode)[]>
+      >((map, { filePath, document }) => {
+        map[filePath] ??= [];
+        map[filePath].push(document);
+        return map;
+      }, Object.create(null));
 
-      const getParentNode = (filePath: string): DocumentNode | null => {
-        for (const { filePath: docFilePath, code } of documents) {
-          const isFileImported = code
-            .split('\n')
-            .filter(isGraphQLImportFile)
-            .map(line => parseImportLine(line.replace('#', '')))
-            .some(o => filePath === join(dirname(docFilePath), o.from));
+      const getParentNode = (currentFilePath: string, node: DocumentNode): DocumentNode => {
+        const { fragmentDefs } = getFragmentDefsAndFragmentSpreads(schema, node);
 
-          if (!isFileImported) {
-            continue;
-          }
-
-          // Import first file that import this file
-          const document = processImport(docFilePath);
-          // Import most top file that import this file
-          return getParentNode(docFilePath) || document;
+        if (fragmentDefs.size === 0) {
+          return node;
         }
+        // skip iteration over documents for current filepath
+        delete filePathForDocumentsMap[currentFilePath];
 
-        return null;
+        for (const [filePath, documents] of Object.entries(filePathForDocumentsMap)) {
+          const missingFragments = getMissingFragments(schema, {
+            kind: Kind.DOCUMENT,
+            definitions: documents,
+          });
+          const isCurrentFileImportFragment = missingFragments.some(fragment => fragmentDefs.has(fragment));
+
+          if (isCurrentFileImportFragment) {
+            return getParentNode(filePath, {
+              kind: Kind.DOCUMENT,
+              definitions: [...node.definitions, ...documents],
+            });
+          }
+        }
+        return node;
       };
 
-      return getParentNode(context.getFilename());
+      return getParentNode(context.getFilename(), node);
     }
   ),
   validationToRule(
@@ -343,10 +344,9 @@ export const GRAPHQL_JS_VALIDATIONS: Record<string, GraphQLESLintRule> = Object.
     {
       category: 'Operations',
       description: `A GraphQL operation is only valid if all variables defined by an operation are used, either directly or within a spread fragment.`,
-      requiresSchema: true,
       requiresSiblings: true,
     },
-    true
+    handleMissingFragments
   ),
   validationToRule('overlapping-fields-can-be-merged', 'OverlappingFieldsCanBeMerged', {
     category: 'Operations',
