@@ -7,36 +7,32 @@ import { GraphQLESLintRule, GraphQLESLintRuleContext } from '../types';
 import { getLocation, requireGraphQLSchemaFromContext, requireSiblingsOperations } from '../utils';
 import { GraphQLESTreeNode } from '../estree-parser';
 
-function extractRuleName(stack?: string): string | null {
-  const match = (stack || '').match(/validation[/\\]rules[/\\](.*?)\.js:/) || [];
-  return match[1] || null;
-}
-
-export function validateDoc(
+function validateDoc(
   sourceNode: GraphQLESTreeNode<ASTNode>,
   context: GraphQLESLintRuleContext,
   schema: GraphQLSchema | null,
   documentNode: DocumentNode,
-  rules: ReadonlyArray<ValidationRule>,
-  ruleName: string | null = null
+  rule: ValidationRule
 ): void {
-  if (documentNode?.definitions?.length > 0) {
-    try {
-      const validationErrors = schema ? validate(schema, documentNode, rules) : validateSDL(documentNode, null, rules as any);
+  if (documentNode.definitions.length === 0) {
+    return;
+  }
+  try {
+    const validationErrors = schema
+      ? validate(schema, documentNode, [rule])
+      : validateSDL(documentNode, null, [rule as any]);
 
-      for (const error of validationErrors) {
-        const validateRuleName = ruleName || `[${extractRuleName(error.stack)}]`;
-        context.report({
-          loc: getLocation({ start: error.locations[0] }),
-          message: ruleName ? error.message : `${validateRuleName} ${error.message}`,
-        });
-      }
-    } catch (e) {
+    for (const error of validationErrors) {
       context.report({
-        node: sourceNode,
-        message: e.message,
+        loc: getLocation({ start: error.locations[0] }),
+        message: error.message,
       });
     }
+  } catch (e) {
+    context.report({
+      node: sourceNode,
+      message: e.message,
+    });
   }
 }
 
@@ -55,10 +51,10 @@ const validationToRule = (
 
   try {
     ruleFn = require(`graphql/validation/rules/${ruleName}Rule`)[`${ruleName}Rule`];
-  } catch (e) {
+  } catch {
     try {
       ruleFn = require(`graphql/validation/rules/${ruleName}`)[`${ruleName}Rule`];
-    } catch (e) {
+    } catch {
       ruleFn = require('graphql/validation')[`${ruleName}Rule`];
     }
   }
@@ -82,7 +78,7 @@ const validationToRule = (
             if (!ruleFn) {
               // eslint-disable-next-line no-console
               console.warn(
-                `You rule "${name}" depends on a GraphQL validation rule ("${ruleName}") but it's not available in the "graphql-js" version you are using. Skipping...`
+                `You rule "${name}" depends on a GraphQL validation rule "${ruleName}" but it's not available in the "graphql-js" version you are using. Skipping...`
               );
               return;
             }
@@ -94,7 +90,7 @@ const validationToRule = (
             if (isRealFile && getDocumentNode) {
               documentNode = getDocumentNode(context);
             }
-            validateDoc(node, context, schema, documentNode || node.rawNode(), [ruleFn], ruleName);
+            validateDoc(node, context, schema, documentNode || node.rawNode(), ruleFn);
           },
         };
       },
@@ -111,7 +107,7 @@ const importFiles = (context: GraphQLESLintRuleContext) => {
   return processImport(context.getFilename());
 };
 
-export const GRAPHQL_JS_VALIDATIONS = Object.assign(
+export const GRAPHQL_JS_VALIDATIONS: Record<string, GraphQLESLintRule> = Object.assign(
   {},
   validationToRule('executable-definitions', 'ExecutableDefinitions', {
     category: 'Operations',
@@ -365,4 +361,4 @@ export const GRAPHQL_JS_VALIDATIONS = Object.assign(
     category: 'Operations',
     description: `Variables passed to field arguments conform to type.`,
   })
-) as Record<string, GraphQLESLintRule>;
+);
