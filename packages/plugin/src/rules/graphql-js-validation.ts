@@ -1,4 +1,15 @@
-import { validate, GraphQLSchema, DocumentNode, ASTNode, ValidationRule } from 'graphql';
+import {
+  ASTNode,
+  DocumentNode,
+  FragmentDefinitionNode,
+  GraphQLSchema,
+  Kind,
+  TypeInfo,
+  validate,
+  ValidationRule,
+  visit,
+  visitWithTypeInfo,
+} from 'graphql';
 import { validateSDL } from 'graphql/validation/validate';
 import { parseImportLine, processImport } from '@graphql-tools/import';
 import { existsSync } from 'fs';
@@ -41,11 +52,71 @@ const isGraphQLImportFile = rawSDL => {
   return trimmedRawSDL.startsWith('# import') || trimmedRawSDL.startsWith('#import');
 };
 
+const handleMissingFragments = ({
+  schema,
+  node,
+  ruleId,
+  context,
+}: {
+  schema: GraphQLSchema;
+  node: DocumentNode;
+  ruleId: string;
+  context: GraphQLESLintRuleContext;
+}): DocumentNode => {
+  const typeInfo = new TypeInfo(schema);
+  const fragmentDefs = new Set<`${string}:${string}`>();
+  const fragmentSpreads = new Set<`${string}:${string}`>();
+
+  const visitor = visitWithTypeInfo(typeInfo, {
+    FragmentDefinition(node) {
+      fragmentDefs.add(`${node.name.value}:${node.typeCondition.name.value}`);
+    },
+    FragmentSpread(node) {
+      const fieldDef = typeInfo.getFieldDef();
+      if (fieldDef) {
+        fragmentSpreads.add(`${node.name.value}:${typeInfo.getParentType().name}`);
+      }
+    },
+  });
+
+  visit(node, visitor);
+
+  const missingFragments = [...fragmentSpreads].filter(name => !fragmentDefs.has(name));
+
+  if (missingFragments.length > 0) {
+    const siblings = requireSiblingsOperations(ruleId, context);
+    const fragmentsToAdd: FragmentDefinitionNode[] = [];
+
+    for (const missingFragment of missingFragments) {
+      const [fragmentName, fragmentTypeName] = missingFragment.split(':');
+      const fragments = siblings
+        .getFragment(fragmentName)
+        .map(source => source.document)
+        .filter(fragment => fragment.typeCondition.name.value === fragmentTypeName);
+
+      if (fragments.length > 1) {
+        // eslint-disable-next-line no-console
+        console.warn(
+          `You have ${fragments.length} fragments that have same name ${fragmentName} and same type ${fragmentTypeName}. That can provoke unexpected result for "${ruleId}" rule.`
+        );
+      }
+      fragmentsToAdd.push(fragments[0]);
+    }
+    if (fragmentsToAdd.length > 0) {
+      return {
+        kind: Kind.DOCUMENT,
+        definitions: [...node.definitions, ...fragmentsToAdd],
+      };
+    }
+  }
+  return node;
+};
+
 const validationToRule = (
   name: string,
   ruleName: string,
   docs: GraphQLESLintRule['meta']['docs'],
-  getDocumentNode?: (context: GraphQLESLintRuleContext) => DocumentNode | null
+  shouldAddMissingFragments = false
 ): Record<typeof name, GraphQLESLintRule<any, true>> => {
   let ruleFn: null | ValidationRule = null;
 
@@ -85,12 +156,22 @@ const validationToRule = (
 
             const schema = requiresSchema ? requireGraphQLSchemaFromContext(name, context) : null;
 
-            let documentNode: DocumentNode;
-            const isRealFile = existsSync(context.getFilename());
-            if (isRealFile && getDocumentNode) {
-              documentNode = getDocumentNode(context);
-            }
-            validateDoc(node, context, schema, documentNode || node.rawNode(), ruleFn);
+            const documentNode = node.rawNode();
+
+            validateDoc(
+              node,
+              context,
+              schema,
+              shouldAddMissingFragments
+                ? handleMissingFragments({
+                    schema,
+                    node: documentNode,
+                    ruleId: name,
+                    context,
+                  })
+                : documentNode,
+              ruleFn
+            );
           },
         };
       },
@@ -227,8 +308,10 @@ export const GRAPHQL_JS_VALIDATIONS: Record<string, GraphQLESLintRule> = Object.
     {
       category: 'Operations',
       description: `A GraphQL operation is only valid if all variables encountered, both directly and via fragment spreads, are defined by that operation.`,
+      requiresSchema: true,
+      requiresSiblings: true,
     },
-    importFiles
+    true,
   ),
   validationToRule(
     'no-unused-fragments',
@@ -277,8 +360,10 @@ export const GRAPHQL_JS_VALIDATIONS: Record<string, GraphQLESLintRule> = Object.
     {
       category: 'Operations',
       description: `A GraphQL operation is only valid if all variables defined by an operation are used, either directly or within a spread fragment.`,
+      requiresSchema: true,
+      requiresSiblings: true,
     },
-    importFiles
+    true
   ),
   validationToRule('overlapping-fields-can-be-merged', 'OverlappingFieldsCanBeMerged', {
     category: 'Operations',
