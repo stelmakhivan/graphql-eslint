@@ -27,6 +27,18 @@ ruleTester.runGraphQLTests('known-fragment-names', rules['known-fragment-names']
         operations: join(__dirname, 'mocks/known-fragment-names.ts'),
       },
     },
+    {
+      name: 'should import all fragments inside fragments',
+      filename: join(__dirname, 'mocks/known-fragment-names/user.gql'),
+      code: ruleTester.fromMockFile('known-fragment-names/user.gql'),
+      parserOptions: {
+        schema: join(__dirname, 'mocks/user-schema.graphql'),
+        operations: [
+          join(__dirname, 'mocks/known-fragment-names/user.gql'),
+          join(__dirname, 'mocks/known-fragment-names/user-fields.gql'),
+        ],
+      },
+    },
   ],
   invalid: [],
 });

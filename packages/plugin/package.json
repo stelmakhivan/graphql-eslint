@@ -4,6 +4,13 @@
   "repository": "https://github.com/dotansimha/graphql-eslint",
   "author": "Dotan Simha <dotansimha@gmail.com>",
   "license": "MIT",
+  "description": "GraphQL plugin for ESLint",
+  "keywords": [
+    "eslint",
+    "eslintplugin",
+    "eslint-plugin",
+    "graphql"
+  ],
   "sideEffects": false,
   "main": "dist/index.js",
   "module": "dist/index.mjs",

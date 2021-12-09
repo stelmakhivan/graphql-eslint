@@ -1,4 +1,4 @@
-fragment PostFields on Post {
+query {
   user {
     ...UserFields
   }
