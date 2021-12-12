@@ -40,5 +40,16 @@ ruleTester.runGraphQLTests('known-fragment-names', rules['known-fragment-names']
       },
     },
   ],
-  invalid: [],
+  invalid: [
+    {
+      name: 'should not throw an error on undefined fragment',
+      filename: join(__dirname, 'mocks/known-fragment-names/operation-with-undefined-fragment.gql'),
+      code: ruleTester.fromMockFile('known-fragment-names/operation-with-undefined-fragment.gql'),
+      parserOptions: {
+        schema: join(__dirname, 'mocks/user-schema.graphql'),
+        operations: join(__dirname, 'mocks/known-fragment-names/operation-with-undefined-fragment.gql'),
+      },
+      errors: [{ message: 'Unknown fragment "DoesNotExist".' }],
+    },
+  ],
 });

@@ -94,12 +94,15 @@ const handleMissingFragments: GetDocumentNode = ({ ruleId, context, schema, node
 
     for (const missingFragment of missingFragments) {
       const [fragmentName, fragmentTypeName] = missingFragment.split(':');
-      const fragments = siblings
+      const [foundFragment] = siblings
         .getFragment(fragmentName)
         .map(source => source.document)
         .filter(fragment => fragment.typeCondition.name.value === fragmentTypeName);
-      fragmentsToAdd.push(fragments[0]);
+      if (foundFragment) {
+        fragmentsToAdd.push(foundFragment);
+      }
     }
+
     if (fragmentsToAdd.length > 0) {
       // recall fn to make sure to add fragments inside fragments
       return handleMissingFragments({
